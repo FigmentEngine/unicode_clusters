@@ -98,6 +98,13 @@ impl GraphemeCluster {
 	}
 }
 
+use std::fmt;
+impl fmt::Display for GraphemeCluster {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		write!(f, "{}", self.as_string())
+	}
+}
+
 #[test]
 fn example() {
 	let input = "AȜनमस्ते";
