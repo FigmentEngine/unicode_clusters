@@ -92,11 +92,74 @@ impl GraphemeCluster {
 			.map(|c| GraphemeCluster::new(c))
 			.collect::<Vec<GraphemeCluster>>()
 	}
+
+	pub fn as_string(self) -> String {
+		String::from_utf8_lossy(self.as_bytes()).to_string()
+	}
+}
+
+#[test]
+fn example() {
+	let input = "AȜनमस्ते";
+
+	let gcs = GraphemeCluster::graphemes(input);
+	assert!(gcs.len() == 6, "length");
+
+	assert_eq!(gcs[0].as_string(), "A");
+
+	assert_eq!(gcs[1].as_string(), "Ȝ");
+	assert_eq!(gcs[2].as_string(), "न");
+	assert_eq!(gcs[3].as_string(), "म");
+	assert_eq!(gcs[4].as_string(), "स्");
+	assert_eq!(gcs[5].as_string(), "ते");
+
+	assert_eq!(gcs[0].as_bytes()[..], [65]);
+	assert_eq!(gcs[1].as_bytes()[..], [200, 156]);
+	assert_eq!(gcs[2].as_bytes()[..], [224, 164, 168]);
+	assert_eq!(gcs[3].as_bytes()[..], [224, 164, 174]);
+	assert_eq!(gcs[4].as_bytes()[..], [224, 164, 184,	224, 165, 141]);
+	assert_eq!(gcs[5].as_bytes()[..], [224, 164, 164,	224, 165, 135]);
 }
 
 #[test]
 fn it_works() {
-	assert_eq!(2 + 2, 4);
+	let bytes = GraphemeCluster::as_gcs("A");
+
+	assert_eq!([
+		65
+	], bytes[..], "{:?}", bytes);
+
+	let bytes2 = GraphemeCluster::as_gcs("Ȝ");
+
+	assert_eq!([
+		200, 156
+	], bytes2[..], "{:?}", bytes2);
+
+	let mut b1 = [0u8; 1];
+	b1.copy_from_slice(&bytes);
+
+	let mut b2 = [0u8; 2];
+	b2.copy_from_slice(&bytes2);
+
+	println!("{:?}", GraphemeCluster::new("A"));
+	println!("{:?}", GraphemeCluster::new("Ȝ"));
+	println!("{:?}", GraphemeCluster::new("ते"));
+	let key = GraphemeCluster::new("ते");
+	println!("{:?}", key.as_bytes());
+
+	use std::collections::HashMap;
+	let mut nodes: HashMap<GraphemeCluster, char> = HashMap::new();
+	nodes.entry(key).or_insert('a');
+	nodes.entry(key).or_insert('b');
+
+	assert_eq!(nodes.get(&key), Some(&'a'), "find inserted item first value");
+
+	let key2 = GraphemeCluster::new("ते");
+	assert_eq!(nodes.get(&key2), Some(&'a'), "find existing item with duplicate key");
+
+	let key3 = GraphemeCluster::new("Ȝ");
+	println!("{:?}", key3.as_bytes());
+	assert_eq!(nodes.get(&key3), None, "don't find non-existing item");
 }
 
 #[test]
@@ -124,4 +187,34 @@ fn bytes_3() {
 	assert_eq!([
 		224, 164, 168
 	], bytes[..], "{:?}", bytes);
+}
+
+#[test]
+fn bytes_4() {
+	let bytes = GraphemeCluster::as_gcs("𐌰");
+
+	assert_eq!([
+		240, 144, 140, 176
+	], bytes[..], "{:?}", bytes);
+}
+
+#[test]
+fn bytes_6() {
+	let bytes = GraphemeCluster::as_gcs("स्");
+
+	assert_eq!([
+		224, 164, 184,
+		224, 165, 141
+	], bytes[..], "{:?}", bytes);
+}
+
+#[test]
+fn unicode_compare() {
+	let char1 = GraphemeCluster::new("\"");
+	let char2 = GraphemeCluster::new("\"");
+	assert_eq!(char1, char2, "compare unicode chars");
+
+	let char1 = GraphemeCluster::new("Ȝ");
+	let char2 = GraphemeCluster::new("Ȝ");
+	assert_eq!(char1, char2, "compare unicode chars wide");
 }
