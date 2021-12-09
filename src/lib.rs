@@ -52,7 +52,7 @@ impl<const N: usize> hash::Hash for GCBytes<N> {
 
 impl GraphemeCluster {
 	pub fn new(input: &str) -> Self {
-		let bytes = GraphemeCluster::as_gcs(input);
+		let bytes = GraphemeCluster::to_vec(input);
 		let len = bytes.len();
 
 		let gc: GraphemeCluster = match len {
@@ -79,7 +79,7 @@ impl GraphemeCluster {
 		}
 	}
 
-	fn as_gcs(input: &str) -> Vec<u8> {
+	fn to_vec(input: &str) -> Vec<u8> {
 		let gcs = UnicodeSegmentation::graphemes(input, true).collect::<Vec<&str>>();
 		let first_gc = gcs[0];
 		let bytes: Vec<u8> = first_gc.bytes().collect();
@@ -93,7 +93,7 @@ impl GraphemeCluster {
 			.collect::<Vec<GraphemeCluster>>()
 	}
 
-	pub fn as_string(self) -> String {
+	pub fn to_string_lossy(self) -> String {
 		String::from_utf8_lossy(self.as_bytes()).to_string()
 	}
 }
@@ -101,7 +101,7 @@ impl GraphemeCluster {
 use std::fmt;
 impl fmt::Display for GraphemeCluster {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		write!(f, "{}", self.as_string())
+		write!(f, "{}", self.to_string_lossy())
 	}
 }
 
@@ -112,13 +112,13 @@ fn example() {
 	let gcs = GraphemeCluster::graphemes(input);
 	assert!(gcs.len() == 6, "length");
 
-	assert_eq!(gcs[0].as_string(), "A");
+	assert_eq!(gcs[0].to_string_lossy(), "A");
 
-	assert_eq!(gcs[1].as_string(), "Ȝ");
-	assert_eq!(gcs[2].as_string(), "न");
-	assert_eq!(gcs[3].as_string(), "म");
-	assert_eq!(gcs[4].as_string(), "स्");
-	assert_eq!(gcs[5].as_string(), "ते");
+	assert_eq!(gcs[1].to_string_lossy(), "Ȝ");
+	assert_eq!(gcs[2].to_string_lossy(), "न");
+	assert_eq!(gcs[3].to_string_lossy(), "म");
+	assert_eq!(gcs[4].to_string_lossy(), "स्");
+	assert_eq!(gcs[5].to_string_lossy(), "ते");
 
 	assert_eq!(gcs[0].as_bytes()[..], [65]);
 	assert_eq!(gcs[1].as_bytes()[..], [200, 156]);
@@ -130,13 +130,13 @@ fn example() {
 
 #[test]
 fn it_works() {
-	let bytes = GraphemeCluster::as_gcs("A");
+	let bytes = GraphemeCluster::to_vec("A");
 
 	assert_eq!([
 		65
 	], bytes[..], "{:?}", bytes);
 
-	let bytes2 = GraphemeCluster::as_gcs("Ȝ");
+	let bytes2 = GraphemeCluster::to_vec("Ȝ");
 
 	assert_eq!([
 		200, 156
@@ -171,7 +171,7 @@ fn it_works() {
 
 #[test]
 fn bytes_1() {
-	let bytes = GraphemeCluster::as_gcs("A");
+	let bytes = GraphemeCluster::to_vec("A");
 
 	assert_eq!([
 		65
@@ -180,7 +180,7 @@ fn bytes_1() {
 
 #[test]
 fn bytes_2() {
-	let bytes = GraphemeCluster::as_gcs("Ȝ");
+	let bytes = GraphemeCluster::to_vec("Ȝ");
 
 	assert_eq!([
 		200, 156
@@ -189,7 +189,7 @@ fn bytes_2() {
 
 #[test]
 fn bytes_3() {
-	let bytes = GraphemeCluster::as_gcs("न");
+	let bytes = GraphemeCluster::to_vec("न");
 
 	assert_eq!([
 		224, 164, 168
@@ -198,7 +198,7 @@ fn bytes_3() {
 
 #[test]
 fn bytes_4() {
-	let bytes = GraphemeCluster::as_gcs("𐌰");
+	let bytes = GraphemeCluster::to_vec("𐌰");
 
 	assert_eq!([
 		240, 144, 140, 176
@@ -207,7 +207,7 @@ fn bytes_4() {
 
 #[test]
 fn bytes_6() {
-	let bytes = GraphemeCluster::as_gcs("स्");
+	let bytes = GraphemeCluster::to_vec("स्");
 
 	assert_eq!([
 		224, 164, 184,
