@@ -100,7 +100,7 @@ fn it_works() {
 }
 
 #[test]
-fn singlebyte() {
+fn bytes_1() {
 	let bytes = GraphemeCluster::as_gcs("A");
 
 	assert_eq!([
@@ -108,12 +108,20 @@ fn singlebyte() {
 	], bytes[..], "{:?}", bytes);
 }
 
-
 #[test]
-fn doublebyte() {
-	let bytes2 = GraphemeCluster::as_gcs("Ȝ");
+fn bytes_2() {
+	let bytes = GraphemeCluster::as_gcs("Ȝ");
 
 	assert_eq!([
 		200, 156
-	], bytes2[..], "{:?}", bytes2);
+	], bytes[..], "{:?}", bytes);
+}
+
+#[test]
+fn bytes_3() {
+	let bytes = GraphemeCluster::as_gcs("न");
+
+	assert_eq!([
+		224, 164, 168
+	], bytes[..], "{:?}", bytes);
 }
